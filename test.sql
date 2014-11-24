@@ -81,6 +81,26 @@ insert into @tt values(1, 3)
 insert into @tt values(3, NULL)
 insert into @tt values(4, 3)
 
+SELECT CASE 
+            WHEN tt.x IS NULL THEN 'недостающие'
+            ELSE 'лишние'
+       END[сравнение @tt с @t],
+       ISNULL(tt.x, t.x)     x,
+       CASE 
+            WHEN tt.x IS NULL THEN t.y
+            ELSE tt.y
+       END                   y
+FROM   @tt tt
+       FULL JOIN @t t
+            ON  EXISTS(
+                    SELECT tt.x,
+                           tt.y INTERSECT SELECT t.x,
+                                                 t.y
+                )
+WHERE  tt.x IS NULL
+       OR  t.x IS            NULL;
+
+
 SELECT t.* 
 FROM @tt t
 FULL JOIN @t t2
